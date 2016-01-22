@@ -79,6 +79,7 @@ describe 'Get Credentials', ->
           .send
             devices: ['flow-uuid']
             payload:
+              from: 'instance-uuid'
               userApi: [
                 authtype: "oauth",
                 token_crypt: 'github-auth-access-token'

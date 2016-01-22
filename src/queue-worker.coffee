@@ -13,7 +13,7 @@ class QueueWorker
       [queueName, requestStr] = result
 
       request = JSON.parse requestStr
-      {flowId} = request.metadata
+      {flowId,instanceId} = request.metadata
       debug 'brpop', request.metadata
 
       credentials = new Credentials {@mongoDBUri}
@@ -24,6 +24,7 @@ class QueueWorker
         message =
           devices: [flowId]
           payload:
+            from: instanceId
             userApi: userApi
         meshbluHttp.message message, callback
 
