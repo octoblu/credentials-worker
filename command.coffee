@@ -18,9 +18,10 @@ class Command
       .option '-n, --namespace <credentials>', 'job handler queue namespace.', 'credentials'
       .option '-s, --single-run', 'perform only one job.'
       .option '-t, --timeout <45>', 'seconds to wait for a next job.', @parseInt, 45
+      .option '-db, --database <octoblu>', 'database to connect to, can be a full URI or just a database name.', 'octoblu'
       .parse process.argv
 
-    {@namespace,@singleRun,@timeout} = commander
+    {@namespace,@singleRun,@timeout,@database} = commander
 
     if process.env.CREDENTIALS_NAMESPACE?
       @namespace = process.env.CREDENTIALS_NAMESPACE
@@ -30,6 +31,9 @@ class Command
 
     if process.env.CREDENTIALS_TIMEOUT?
       @timeout = parseInt process.env.CREDENTIALS_TIMEOUT
+
+    if process.env.MONGODB_URI?
+      @database = process.env.MONGODB_URI
 
     @redisUri = process.env.REDIS_URI
 
@@ -46,7 +50,7 @@ class Command
   terminated: => @terminate
 
   queueWorkerRun: ({client, meshbluConfig}, callback) =>
-    queueWorker = new QueueWorker {client, @timeout, meshbluConfig}
+    queueWorker = new QueueWorker {client,@timeout,meshbluConfig,@database}
 
     queueWorker.run (error) =>
       if error?

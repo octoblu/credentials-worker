@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/credentials-worker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Credentials worker",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "lodash": "^4.0.0",
     "meshblu-config": "^3.1.1",
     "meshblu-http": "^5.0.2",
+    "mongojs": "^2.3.0",
     "redis": "^2.4.2"
   }
 }

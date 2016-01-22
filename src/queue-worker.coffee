@@ -3,7 +3,7 @@ Credentials = require './credentials'
 debug       = require('debug')('credentials-worker:queue-worker')
 
 class QueueWorker
-  constructor: ({@client,@meshbluConfig,@timeout}) ->
+  constructor: ({@client,@meshbluConfig,@timeout,@mongoDBUri}) ->
 
   run: (callback) =>
     @client.brpop 'request:queue', @timeout, (error,result) =>
@@ -16,14 +16,15 @@ class QueueWorker
       {flowId} = request.metadata
       debug 'brpop', request.metadata
 
-      credentials = new Credentials
-      credentials.fetch request, (error) =>
+      credentials = new Credentials {@mongoDBUri}
+      credentials.fetch flowId, (error, userApi) =>
         error.flowId = flowId if error?
+        return callback error if error?
         meshbluHttp = new MeshbluHttp @meshbluConfig
         message =
           devices: [flowId]
-          payload: request.message
-
+          payload:
+            userApi: userApi
         meshbluHttp.message message, callback
-        
+
 module.exports = QueueWorker

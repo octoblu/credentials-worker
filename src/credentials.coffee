@@ -1,5 +1,25 @@
+_       = require 'lodash'
+mongojs = require 'mongojs'
+
 class Credentials
-  fetch: (request, callback) =>
-    callback null
-    
+  constructor: ({@mongoDBUri}) ->
+    @database = mongojs @mongoDBUri, ['users', 'flows']
+
+  getUserUuidByFlow: (flowId, callback) =>
+    @database.flows.findOne flowId: flowId, (error, flow) =>
+      return callback error if error?
+      return callback new Error 'Missing flow' unless flow?
+      callback null, _.get flow, 'resource.owner.uuid'
+
+  getUserApi: (userUuid, callback) =>
+    @database.users.findOne 'resource.uuid': userUuid, (error, user) =>
+      return callback error if error?
+      return callback new Error 'Missing user' unless user?
+      callback null, _.get user, 'api'
+
+  fetch: (flowId, callback) =>
+    @getUserUuidByFlow flowId, (error, userUuid) =>
+      return callback error if error?
+      @getUserApi userUuid, callback
+
 module.exports = Credentials
