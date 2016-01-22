@@ -4,6 +4,7 @@ RedisNS     = require '@octoblu/redis-ns'
 redis       = require 'fakeredis'
 mongojs     = require 'mongojs'
 {ObjectId}  = require 'mongojs'
+textCrypt  = require '../../src/text-crypt'
 QueueWorker = require '../../src/queue-worker'
 
 describe 'Get Credentials', ->
@@ -46,12 +47,13 @@ describe 'Get Credentials', ->
       @database.flows.insert flow, done
 
     beforeEach (done) ->
+      @token_crypt = textCrypt.encrypt 'github-auth-access-token'
       user =
         resource:
           uuid: 'user-uuid'
         api: [
           authtype: "oauth",
-          token_crypt: 'github-auth-access-token'
+          token_crypt: @token_crypt
           channelid: ObjectId("532a258a50411e5802cb8053"),
           _id: ObjectId("56a1254b0c6266010001875e"),
           type: "channel:github",
@@ -80,9 +82,10 @@ describe 'Get Credentials', ->
             devices: ['flow-uuid']
             payload:
               from: 'node-uuid'
-              userApi: [
+              userApis: [
                 authtype: "oauth",
-                token_crypt: 'github-auth-access-token'
+                token_crypt: @token_crypt
+                token: 'github-auth-access-token'
                 channelid: "532a258a50411e5802cb8053"
                 _id: "56a1254b0c6266010001875e"
                 type: "channel:github"

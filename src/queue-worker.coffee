@@ -17,7 +17,7 @@ class QueueWorker
       debug 'brpop', request.metadata
 
       credentials = new Credentials {@mongoDBUri}
-      credentials.fetch flowId, (error, userApi) =>
+      credentials.fetch flowId, (error, userApis) =>
         error.flowId = flowId if error?
         return callback error if error?
         meshbluHttp = new MeshbluHttp @meshbluConfig
@@ -25,7 +25,7 @@ class QueueWorker
           devices: [flowId]
           payload:
             from: nodeId
-            userApi: userApi
+            userApis: userApis
         meshbluHttp.message message, callback
 
 module.exports = QueueWorker
