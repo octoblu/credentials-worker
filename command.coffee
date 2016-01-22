@@ -1,11 +1,12 @@
-_           = require 'lodash'
-commander   = require 'commander'
-async       = require 'async'
-redis       = require 'redis'
-RedisNS     = require '@octoblu/redis-ns'
-debug       = require('debug')('credentials-worker:command')
-packageJSON = require './package.json'
-QueueWorker = require './src/queue-worker'
+_             = require 'lodash'
+commander     = require 'commander'
+async         = require 'async'
+redis         = require 'redis'
+RedisNS       = require '@octoblu/redis-ns'
+debug         = require('debug')('credentials-worker:command')
+MeshbluConfig = require 'meshblu-config'
+packageJSON   = require './package.json'
+QueueWorker   = require './src/queue-worker'
 
 class Command
   parseInt: (str) =>
@@ -32,23 +33,22 @@ class Command
 
     @redisUri = process.env.REDIS_URI
 
+
   run: =>
     @parseOptions()
     client = new RedisNS @namespace, redis.createClient @redisUri
 
     process.on 'SIGTERM', => @terminate = true
     return @queueWorkerRun client, @die if @singleRun
-    async.until @terminated, async.apply(@queueWorkerRun, client), @die
+    meshbluConfig = new MeshbluConfig().toJSON()
+    async.until @terminated, async.apply(@queueWorkerRun, {client, meshbluConfig}), @die
 
   terminated: => @terminate
 
-  queueWorkerRun: (client, callback) =>
-    queueWorker = new QueueWorker
-      client:           client
-      timeout:          @timeout
+  queueWorkerRun: ({client, meshbluConfig}, callback) =>
+    queueWorker = new QueueWorker {client, @timeout, meshbluConfig}
 
     queueWorker.run (error) =>
-      console.log 'ran'
       if error?
         console.log "Error flowId: #{error.flowId}"
         console.error error.stack
