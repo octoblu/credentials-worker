@@ -64,7 +64,7 @@ describe 'Get Credentials', ->
         message =
           metadata:
             flowId: 'flow-uuid'
-            instanceId: 'instance-uuid'
+            nodeId: 'node-uuid'
             toNodeId: 'engine-input'
           message: {}
 
@@ -79,7 +79,7 @@ describe 'Get Credentials', ->
           .send
             devices: ['flow-uuid']
             payload:
-              from: 'instance-uuid'
+              from: 'node-uuid'
               userApi: [
                 authtype: "oauth",
                 token_crypt: 'github-auth-access-token'
@@ -99,7 +99,7 @@ describe 'Get Credentials', ->
       message =
         metadata:
           flowId: 'flow-uuid'
-          instanceId: 'instance-uuid'
+          nodeId: 'node-uuid'
           toNodeId: 'engine-input'
         message: {}
 
@@ -125,7 +125,7 @@ describe 'Get Credentials', ->
       message =
         metadata:
           flowId: 'flow-uuid'
-          instanceId: 'instance-uuid'
+          nodeId: 'node-uuid'
           toNodeId: 'engine-input'
         message: {}
 
