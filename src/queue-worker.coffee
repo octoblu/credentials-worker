@@ -4,7 +4,6 @@ debug       = require('debug')('credentials-worker:queue-worker')
 
 class QueueWorker
   constructor: ({@client,@meshbluConfig,@timeout,@mongoDBUri}) ->
-
   run: (callback) =>
     @client.brpop 'request:queue', @timeout, (error,result) =>
       return callback error if error?
@@ -26,6 +25,7 @@ class QueueWorker
           payload:
             from: nodeId
             userApis: userApis
+        debug 'sending message', message
         meshbluHttp.message message, callback
 
 module.exports = QueueWorker
