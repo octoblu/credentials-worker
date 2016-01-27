@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/credentials-worker",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Credentials worker",
   "main": "index.js",
   "scripts": {
