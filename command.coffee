@@ -5,6 +5,7 @@ redis         = require 'redis'
 RedisNS       = require '@octoblu/redis-ns'
 debug         = require('debug')('credentials-worker:command')
 MeshbluConfig = require 'meshblu-config'
+JobManager    = require 'meshblu-core-job-manager'
 packageJSON   = require './package.json'
 QueueWorker   = require './src/queue-worker'
 
@@ -41,18 +42,20 @@ class Command
       @redisUri = 'redis://localhost:6379'
 
   run: =>
+    console.log '[booting up]'
     @parseOptions()
     client = new RedisNS @namespace, redis.createClient @redisUri
+    jobManager = new JobManager {client, timeoutSeconds: @timeout}
 
     process.on 'SIGTERM', => @terminate = true
-    return @queueWorkerRun client, @die if @singleRun
+    return @queueWorkerRun {jobManager, meshbluConfig}, @die if @singleRun
     meshbluConfig = new MeshbluConfig().toJSON()
-    async.until @terminated, async.apply(@queueWorkerRun, {client, meshbluConfig}), @die
+    async.until @terminated, async.apply(@queueWorkerRun, {jobManager, meshbluConfig}), @die
 
   terminated: => @terminate
 
-  queueWorkerRun: ({client, meshbluConfig}, callback) =>
-    queueWorker = new QueueWorker {client,@timeout,meshbluConfig,mongoDBUri:@database}
+  queueWorkerRun: ({jobManager, meshbluConfig}, callback) =>
+    queueWorker = new QueueWorker {jobManager,meshbluConfig,mongoDBUri:@database}
 
     queueWorker.run (error) =>
       if error?

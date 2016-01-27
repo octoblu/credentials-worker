@@ -3,17 +3,15 @@ Credentials = require './credentials'
 debug       = require('debug')('credentials-worker:queue-worker')
 
 class QueueWorker
-  constructor: ({@client,@meshbluConfig,@timeout,@mongoDBUri}) ->
+  constructor: ({@jobManager,@meshbluConfig,@mongoDBUri}) ->
   run: (callback) =>
-    @client.brpop 'request:queue', @timeout, (error,result) =>
+    debug 'running...'
+    @jobManager.getRequest ['request'], (error, result) =>
+      debug 'brpop response', error: error, result: result
       return callback error if error?
       return callback() unless result?
 
-      [queueName, requestStr] = result
-
-      request = JSON.parse requestStr
-      {flowId,nodeId} = request.metadata
-      debug 'brpop', request.metadata
+      {flowId, nodeId} = result.metadata
 
       credentials = new Credentials {@mongoDBUri}
       credentials.fetch flowId, (error, userApis) =>

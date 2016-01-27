@@ -2,6 +2,7 @@ shmock      = require '@octoblu/shmock'
 uuid        = require 'uuid'
 RedisNS     = require '@octoblu/redis-ns'
 redis       = require 'fakeredis'
+JobManager  = require 'meshblu-core-job-manager'
 mongojs     = require 'mongojs'
 {ObjectId}  = require 'mongojs'
 textCrypt  = require '../../src/text-crypt'
@@ -23,14 +24,16 @@ describe 'Get Credentials', ->
     @redisKey = uuid.v1()
 
     client = new RedisNS 'credentials', redis.createClient @redisKey
-
+    jobManager = new JobManager client: client, timeoutSeconds: 1
+    testClient = new RedisNS 'credentials', redis.createClient @redisKey
+    @testJobManager = new JobManager client: testClient, timeoutSeconds: 1
     meshbluConfig =
       uuid: 'credentials-worker-uuid'
       token: 'credentials-worker-token'
       server: 'localhost'
       port: 0xd00d
 
-    @sut = new QueueWorker {meshbluConfig,client,@mongoDBUri,timeout: 1}
+    @sut = new QueueWorker {meshbluConfig,jobManager,@mongoDBUri}
 
     @redisClient = new RedisNS 'credentials', redis.createClient @redisKey
 
@@ -68,10 +71,9 @@ describe 'Get Credentials', ->
             flowId: 'flow-uuid'
             nodeId: 'node-uuid'
             toNodeId: 'engine-input'
-          message: {}
+          rawData: '{}'
 
-        messageStr = JSON.stringify message
-        @redisClient.lpush 'request:queue', messageStr, done
+        @testJobManager.createRequest 'request', message, done
 
       beforeEach (done) ->
         workerAuth = new Buffer('credentials-worker-uuid:credentials-worker-token').toString('base64')
@@ -104,10 +106,9 @@ describe 'Get Credentials', ->
           flowId: 'flow-uuid'
           nodeId: 'node-uuid'
           toNodeId: 'engine-input'
-        message: {}
+        rawData: '{}'
 
-      messageStr = JSON.stringify message
-      @redisClient.lpush 'request:queue', messageStr, done
+      @testJobManager.createRequest 'request', message, done
 
     beforeEach (done) ->
       @sut.run (@error) => done()
@@ -130,10 +131,9 @@ describe 'Get Credentials', ->
           flowId: 'flow-uuid'
           nodeId: 'node-uuid'
           toNodeId: 'engine-input'
-        message: {}
+        rawData: '{}'
 
-      messageStr = JSON.stringify message
-      @redisClient.lpush 'request:queue', messageStr, done
+      @testJobManager.createRequest 'request', message, done
 
     beforeEach (done) ->
       @sut.run (@error) => done()
