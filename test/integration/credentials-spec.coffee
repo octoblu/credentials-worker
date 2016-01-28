@@ -71,7 +71,7 @@ describe 'Get Credentials', ->
             flowId: 'flow-uuid'
             nodeId: 'node-uuid'
             toNodeId: 'engine-input'
-            messageId: 'message-uuid'
+            transactionId: 'message-uuid'
           rawData: '{}'
 
         @testJobManager.createRequest 'request', message, done
@@ -85,7 +85,7 @@ describe 'Get Credentials', ->
             devices: ['flow-uuid']
             payload:
               from: 'node-uuid'
-              messageId: 'message-uuid'
+              transactionId: 'message-uuid'
               userApis: [
                 authtype: "oauth",
                 token_crypt: @token_crypt
@@ -108,7 +108,7 @@ describe 'Get Credentials', ->
           flowId: 'flow-uuid'
           nodeId: 'node-uuid'
           toNodeId: 'engine-input'
-          messageId: 'message-uuid'
+          transactionId: 'message-uuid'
 
         rawData: '{}'
 
@@ -135,7 +135,7 @@ describe 'Get Credentials', ->
           flowId: 'flow-uuid'
           nodeId: 'node-uuid'
           toNodeId: 'engine-input'
-          messageId: 'message-uuid'
+          transactionId: 'message-uuid'
         rawData: '{}'
 
       @testJobManager.createRequest 'request', message, done
