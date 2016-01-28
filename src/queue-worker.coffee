@@ -11,7 +11,7 @@ class QueueWorker
       return callback error if error?
       return callback() unless result?
 
-      {flowId, nodeId} = result.metadata
+      {flowId,nodeId,messageId} = result.metadata
 
       credentials = new Credentials {@mongoDBUri}
       credentials.fetch flowId, (error, userApis) =>
@@ -22,6 +22,7 @@ class QueueWorker
           devices: [flowId]
           payload:
             from: nodeId
+            messageId: messageId
             userApis: userApis
         debug 'sending message', message
         meshbluHttp.message message, callback
