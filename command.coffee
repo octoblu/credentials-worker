@@ -8,6 +8,7 @@ MeshbluConfig = require 'meshblu-config'
 JobManager    = require 'meshblu-core-job-manager'
 packageJSON   = require './package.json'
 QueueWorker   = require './src/queue-worker'
+mongojs       = require 'mongojs'
 
 class Command
   parseInt: (str) =>
@@ -22,7 +23,8 @@ class Command
       .option '-db, --database <meshines>', 'database to connect to, can be a full URI or just a database name.', 'meshines'
       .parse process.argv
 
-    {@namespace,@singleRun,@timeout,@database} = commander
+    {@namespace,@singleRun,@timeout} = commander
+    @mongoDBUri = commander.database
 
     if process.env.CREDENTIALS_NAMESPACE?
       @namespace = process.env.CREDENTIALS_NAMESPACE
@@ -34,7 +36,7 @@ class Command
       @timeout = parseInt process.env.CREDENTIALS_TIMEOUT
 
     if process.env.MONGODB_URI?
-      @database = process.env.MONGODB_URI
+      @mongoDBUri = process.env.MONGODB_URI
 
     if process.env.REDIS_URI
       @redisUri = process.env.REDIS_URI
@@ -42,20 +44,22 @@ class Command
       @redisUri = 'redis://localhost:6379'
 
   run: =>
-    console.log '[booting up]'
+    console.log 'Starting...'
     @parseOptions()
     client = new RedisNS @namespace, redis.createClient @redisUri
     jobManager = new JobManager {client, timeoutSeconds: @timeout}
-
+    @database = mongojs @mongoDBUri, ['users', 'flows']
     process.on 'SIGTERM', => @terminate = true
-    return @queueWorkerRun {jobManager, meshbluConfig}, @die if @singleRun
+
     meshbluConfig = new MeshbluConfig().toJSON()
+
+    return @queueWorkerRun {jobManager, meshbluConfig}, @die if @singleRun
     async.until @terminated, async.apply(@queueWorkerRun, {jobManager, meshbluConfig}), @die
 
   terminated: => @terminate
 
   queueWorkerRun: ({jobManager, meshbluConfig}, callback) =>
-    queueWorker = new QueueWorker {jobManager,meshbluConfig,mongoDBUri:@database}
+    queueWorker = new QueueWorker {jobManager,meshbluConfig,database:@database}
 
     queueWorker.run (error) =>
       if error?

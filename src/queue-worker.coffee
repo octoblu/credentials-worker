@@ -3,7 +3,7 @@ Credentials = require './credentials'
 debug       = require('debug')('credentials-worker:queue-worker')
 
 class QueueWorker
-  constructor: ({@jobManager,@meshbluConfig,@mongoDBUri}) ->
+  constructor: ({@jobManager,@meshbluConfig,@database}) ->
   run: (callback) =>
     debug 'running...'
     @jobManager.getRequest ['request'], (error, result) =>
@@ -13,7 +13,7 @@ class QueueWorker
 
       {flowId,nodeId,transactionId} = result.metadata
 
-      credentials = new Credentials {@mongoDBUri}
+      credentials = new Credentials {@database}
       credentials.fetch flowId, (error, userApis) =>
         error.flowId = flowId if error?
         return callback error if error?

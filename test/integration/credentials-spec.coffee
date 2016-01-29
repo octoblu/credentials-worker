@@ -33,7 +33,7 @@ describe 'Get Credentials', ->
       server: 'localhost'
       port: 0xd00d
 
-    @sut = new QueueWorker {meshbluConfig,jobManager,@mongoDBUri}
+    @sut = new QueueWorker {meshbluConfig,jobManager,@database}
 
     @redisClient = new RedisNS 'credentials', redis.createClient @redisKey
 

@@ -1,10 +1,8 @@
 _       = require 'lodash'
-mongojs = require 'mongojs'
 textCrypt = require './text-crypt'
 
 class Credentials
-  constructor: ({@mongoDBUri}) ->
-    @database = mongojs @mongoDBUri, ['users', 'flows']
+  constructor: ({@database}) ->
 
   getUserUuidByFlow: (flowId, callback) =>
     @database.flows.findOne flowId: flowId, (error, flow) =>
