@@ -5,9 +5,7 @@ debug       = require('debug')('credentials-worker:queue-worker')
 class QueueWorker
   constructor: ({@jobManager,@meshbluConfig,@database}) ->
   run: (callback) =>
-    debug 'running...'
     @jobManager.getRequest ['request'], (error, result) =>
-      debug 'brpop response', error: error, result: result
       return callback error if error?
       return callback() unless result?
 
@@ -24,7 +22,7 @@ class QueueWorker
             from: nodeId
             transactionId: transactionId
             userApis: userApis
-        debug 'sending message', message
+        debug 'sending message', JSON.stringify(message)
         meshbluHttp.message message, callback
 
 module.exports = QueueWorker
