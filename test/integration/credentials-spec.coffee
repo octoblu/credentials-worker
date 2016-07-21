@@ -7,6 +7,7 @@ mongojs     = require 'mongojs'
 {ObjectId}  = require 'mongojs'
 textCrypt  = require '../../src/text-crypt'
 QueueWorker = require '../../src/queue-worker'
+enableDestroy = require 'server-destroy'
 
 describe 'Get Credentials', ->
   beforeEach ->
@@ -21,6 +22,7 @@ describe 'Get Credentials', ->
 
   beforeEach ->
     @meshblu = shmock 0xd00d
+    enableDestroy @meshblu
     @redisKey = uuid.v1()
 
     client = new RedisNS 'credentials', redis.createClient @redisKey
@@ -38,7 +40,7 @@ describe 'Get Credentials', ->
     @redisClient = new RedisNS 'credentials', redis.createClient @redisKey
 
   afterEach (done) ->
-    @meshblu.close done
+    @meshblu.destroy done
 
   describe 'when a user and flow is in the database', ->
     beforeEach (done) ->

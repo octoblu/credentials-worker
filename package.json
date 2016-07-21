@@ -1,6 +1,6 @@
 {
   "name": "@octoblu/credentials-worker",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "Credentials worker",
   "main": "index.js",
   "scripts": {
@@ -20,12 +20,13 @@
     "@octoblu/shmock": "^0.7.2",
     "chai": "^3.4.1",
     "coffee-coverage": "^1.0.1",
+    "fakeredis": "^1.0.2",
     "istanbul": "^0.4.2",
     "mocha": "^2.3.4",
     "mocha-istanbul": "^0.2.0",
+    "server-destroy": "^1.0.1",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
-    "fakeredis": "^1.0.2",
     "uuid": "^2.0.1"
   },
   "dependencies": {
