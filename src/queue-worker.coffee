@@ -12,9 +12,10 @@ class QueueWorker
       {flowId,nodeId,transactionId} = result.metadata
 
       credentials = new Credentials {@database}
-      credentials.fetch flowId, (error, userApis) =>
-        error.flowId = flowId if error?
-        return callback error if error?
+      credentials.fetch flowId, (fetchError, userApis) =>
+        fetchError.flowId = flowId if fetchError?
+        # make sure the message always gets sent back
+        # even if error
         meshbluHttp = new MeshbluHttp @meshbluConfig
         message =
           devices: [flowId]
@@ -22,7 +23,10 @@ class QueueWorker
             from: nodeId
             transactionId: transactionId
             userApis: userApis
+            error: fetchError?.message
         debug 'sending message', JSON.stringify(message)
-        meshbluHttp.message message, callback
+        meshbluHttp.message message, (error) =>
+          return callback error if error?
+          callback fetchError
 
 module.exports = QueueWorker
