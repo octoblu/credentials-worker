@@ -1,10 +1,13 @@
 {
   "name": "@octoblu/credentials-worker",
-  "version": "3.1.7",
+  "version": "3.1.8",
   "description": "Credentials worker",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul"
+    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul",
+    "coverage": "nyc npm test",
+    "mocha:json": "env NPM_ENV=test mocha --reporter json > coverage/mocha.json",
+    "test:watch": "mocha -w -R mocha-multi --reporter-options spec=-,mocha-osx-reporter=-"
   },
   "repository": {
     "type": "git",
@@ -27,7 +30,10 @@
     "server-destroy": "^1.0.1",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "nyc": "^8.3.0",
+    "mocha-osx-reporter": "^0.1.2",
+    "mocha-multi": "^0.9.1"
   },
   "dependencies": {
     "@octoblu/redis-ns": "^1.2.0",
